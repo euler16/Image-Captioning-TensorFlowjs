@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Image classification using MobileNet</h1>
+    <p>The MobileNet model labeled this as <span id="result">...</span> with a confidence of <span id="probability">...</span>.</p>
+    <img src="images/bird.jpg" id="image" width="400">
+    <!-- <script src="js/p5.min.js"></script>
+    <script src="js/p5.dom.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
+    <script src="model/word2idx.js"></script>
+    <script src="model/idx2word.js"></script>
+    <script src="js/caption.js"></script>
+</body>
+</html>
