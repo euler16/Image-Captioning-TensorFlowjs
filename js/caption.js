@@ -21,16 +21,28 @@ function preprocess(img) {
 function caption(img) {
     // should use promise and async-await to make it non blocking
     // max_len change karna
-    
-    let start_word = ['<start>'];
-    while(true) {
-        let par_caps = [];
-        for(let j=0;j<start_word.length;++j) {
-            par_caps.append(word2idx[start_word[j]]);
+    return tf.tidy(()=> {
+        let startWord = ['<start>'];
+        while (true) {
+            let parCaps = [];
+            for (let j = 0; j < startWord.length; ++j) {
+                parCaps.append(word2idx[start_word[j]]);
+            }
+            parCaps = tf.tensor1d(parCaps).pad([[0, maxLen - startWord.length]]);
+            let e = mobileNet.predict(img);
+            let preds = model.predict([e,par_caps]);
+            let wordPred = idx2word[preds.argMax()];
+            startWord.append(wordPred);
+
+            if(wordPred=='<end>'||startWord.length>maxLen)
+                break;
         }
-        par_caps = tf.tensor1d(par_caps).pad([[0,maxLen-start_word.length]]);
-        let e = mobileNet.predict()
-    }    
+        // removing first and last tokern <start> and <end>
+        startWord.shift();
+        startWord.pop();
+
+        return startWord.join(' ');
+    }); 
 }
 
 async function loadMobileNet() {
@@ -45,5 +57,6 @@ async function loadMobileNet() {
 async function start() {
     mobileNet = loadMobileNet();
     model = await tf.loadModel('model/model.json');
-    model.predict(tf.zeros([1,224,224,3])); 
+    mobileNet.predict(tf.zeros([1,224,224,3]));
+    
 }
