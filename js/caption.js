@@ -1,5 +1,8 @@
 
 let img = document.querySelector("#image");
+let button = document.querySelector("#btn");
+let text = document.querySelector("#txt");
+
 let isModelLoaded = false;
 
 let model;
@@ -7,9 +10,9 @@ let mobileNet;
 
 const maxLen = 3; // 40
 
-function preprocess(img) {
+function preprocess(imgElement) {
     return tf.tidy(() => {
-        let tensor = tf.fromPixels(imgData).toFloat();
+        let tensor = tf.fromPixels(imgElement).toFloat();
         const resized = tf.image.resizeBilinear(tensor,[224,224]);
         const offset = 125.5;
         const normalized = resized.div(offset).sub(tf.scalar(1.0));
@@ -58,5 +61,16 @@ async function start() {
     mobileNet = loadMobileNet();
     model = await tf.loadModel('model/model.json');
     mobileNet.predict(tf.zeros([1,224,224,3]));
-    
+    modelLoaded();
 }
+
+function modelLoaded() {
+    isModelLoaded = true;
+    text.innerHTML = "Models Loaded!";
+}
+
+button.addEventListener("click",function() {
+    let picture = preprocess(img);
+});
+
+start();
