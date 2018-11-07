@@ -57,7 +57,6 @@ async function loadMobileNet() {
         'inputs': mobilenet.inputs,
         'outputs': layer.output
     });
-    
 }
 
 async function start() {
