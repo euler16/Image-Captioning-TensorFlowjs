@@ -24,19 +24,21 @@ function preprocess(imgElement) {
 function caption(img) {
     // should use promise and async-await to make it non blocking
     // max_len change karna
+    let flattenLayer = tf.layers.flatten();
     console.log("Inside caption()");
     return tf.tidy(()=> {
         let startWord = ['<start>'];
         while (true) {
             let parCaps = [];
             for (let j = 0; j < startWord.length; ++j) {
-                parCaps.append(word2idx[start_word[j]]);
+                //console.log(typeof(parCaps));
+                parCaps.push(word2idx[startWord[j]]);
             }
             parCaps = tf.tensor1d(parCaps).pad([[0, maxLen - startWord.length]]);
-            let e = mobileNet.predict(img);
-            let preds = model.predict([e,par_caps]);
-            let wordPred = idx2word[preds.argMax()];
-            startWord.append(wordPred);
+            let e = flattenLayer.apply(mobileNet.predict(img));
+            let preds = model.predict([e,parCaps]);
+            let wordPred = idx2word[preds[0].argMax()];
+            startWord.push(wordPred);
 
             if(wordPred=='<end>'||startWord.length>maxLen)
                 break;
@@ -60,14 +62,22 @@ async function loadMobileNet() {
 }
 
 async function start() {
-    mobileNet = loadMobileNet();
+    //mobileNet = loadMobileNet();
+    const mobilenet = await tf.loadModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
+    const layer = mobilenet.getLayer('conv_preds');
+    //console.log("mobileNet loaded");
+    mobileNet =  tf.model({
+        'inputs': mobilenet.inputs,
+        'outputs': layer.output
+    });
+
     model = await tf.loadModel('model/model.json');
     console.log("Inside start()");
-    mobileNet.predict(tf.zeros([1,224,224,3]));
     modelLoaded();
 }
 
 function modelLoaded() {
+    mobileNet.predict(tf.zeros([1, 224, 224, 3])).dispose();
     console.log("Inside modelLoaded()");
     isModelLoaded = true;
     text.innerHTML = "Models Loaded!";
@@ -81,6 +91,7 @@ button.addEventListener("click",function() {
     }
     let picture = preprocess(img);
     let cap = caption(picture);
+    console.log(cap);
     capField.innerHTML = cap;
 });
 
