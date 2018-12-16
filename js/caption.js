@@ -8,7 +8,7 @@ let isModelLoaded = false;
 let model;
 let mobileNet;
 
-const maxLen = 3; // 40
+const maxLen = 40; // 40
 
 function preprocess(imgElement) {
     return tf.tidy(() => {
@@ -21,33 +21,100 @@ function preprocess(imgElement) {
     });
 }
 
+/* function asyncCaption(img) {
+
+    let startWord = ['<start>'];
+    let idx, wordPred;
+    let flattenLayer = tf.layers.flatten();
+    let e = flattenLayer.apply(mobileNet.predict(img));
+    function captionLoop(callback) {
+        let continueLoop = true;
+        
+        function whileBlock() {
+            if(continueLoop) {
+                let parCaps = [];
+                for (let j = 0; j < startWord.length; ++j) {
+                    //console.log(typeof(parCaps));
+                    parCaps.push(word2idx[startWord[j]]);
+                }
+                parCaps = tf.tensor1d(parCaps)
+                    .pad([[0, maxLen - startWord.length]])
+                    .expandDims(0);
+
+                
+                let preds = model.predict([e, parCaps]);
+                preds = preds.reshape([preds.shape[1]]);
+                //console.log(preds.shape);
+
+                idx = preds.argMax().dataSync();
+                wordPred = idx2word[idx];
+                console.log(wordPred);
+                startWord.push(wordPred);
+                if (wordPred == '<end>' || startWord.length > maxLen)
+                    continueLoop = false;    
+
+                whileBlock();
+            } else {
+                return callback();
+            }
+        }
+        whileBlock();
+    }
+
+    function postCaption() {
+        startWord.shift();
+        startWord.pop();
+        cap = startWord.join(' ');
+        console.log("caption: ", cap);
+        capField.innerHTML = cap;
+        return cap;
+    }
+
+    return captionLoop(postCaption);
+} */
+
 function caption(img) {
     // should use promise and async-await to make it non blocking
     // max_len change karna
     let flattenLayer = tf.layers.flatten();
     console.log("Inside caption()");
     return tf.tidy(()=> {
+
         let startWord = ['<start>'];
+        let idx,wordPred;
+        let e = flattenLayer.apply(mobileNet.predict(img));
+        
         while (true) {
             let parCaps = [];
             for (let j = 0; j < startWord.length; ++j) {
                 //console.log(typeof(parCaps));
                 parCaps.push(word2idx[startWord[j]]);
             }
-            parCaps = tf.tensor1d(parCaps).pad([[0, maxLen - startWord.length]]);
-            let e = flattenLayer.apply(mobileNet.predict(img));
-            let preds = model.predict([e,parCaps]);
-            let wordPred = idx2word[preds.argMax()];
-            startWord.push(wordPred);
+            parCaps = tf.tensor1d(parCaps)
+                        .pad([[0, maxLen - startWord.length]])
+                        .expandDims(0);
 
+            
+            let preds = model.predict([e,parCaps]);
+            preds = preds.reshape([preds.shape[1]]);
+            //console.log(preds.shape);
+            
+            idx = preds.argMax().dataSync();
+            wordPred = idx2word[idx];
+            
+            startWord.push(wordPred);            
             if(wordPred=='<end>'||startWord.length>maxLen)
                 break;
         }
         // removing first and last tokern <start> and <end>
         startWord.shift();
         startWord.pop();
-
-        return startWord.join(' ');
+        
+        cap = startWord.join(' ');
+        console.log("caption: ", cap);
+        capField.innerHTML = cap;
+        //return startWord.join(' ');
+        //return asyncCaption(img);
     }); 
 }
 
@@ -89,10 +156,12 @@ button.addEventListener("click",function() {
         console.log('Models not loaded yet');
         return;
     }
+    capField.innerHTML = "Generating Caption ...";
     let picture = preprocess(img);
-    let cap = caption(picture);
-    console.log(cap);
-    capField.innerHTML = cap;
+    //let cap = caption(picture);
+    caption(picture);
+    //console.log("caption: "+ cap);
+    //capField.innerHTML = cap;
 });
 
 start();
