@@ -37,7 +37,7 @@ function caption(img) {
             parCaps = tf.tensor1d(parCaps).pad([[0, maxLen - startWord.length]]);
             let e = flattenLayer.apply(mobileNet.predict(img));
             let preds = model.predict([e,parCaps]);
-            let wordPred = idx2word[preds[0].argMax()];
+            let wordPred = idx2word[preds.argMax()];
             startWord.push(wordPred);
 
             if(wordPred=='<end>'||startWord.length>maxLen)
