@@ -3,6 +3,8 @@ let img = document.querySelector("#image");
 let button = document.querySelector("#btn");
 let text = document.querySelector("#txt");
 let capField = document.querySelector("#caption");
+let imageLoader = document.querySelector("#imageLoader");
+
 let isModelLoaded = false;
 
 let model;
@@ -149,6 +151,15 @@ function modelLoaded() {
     isModelLoaded = true;
     text.innerHTML = "Models Loaded!";
 }
+
+
+imageLoader.addEventListener('change', function(e) {
+    let reader = new FileReader();
+    reader.onload = function() {
+        img.src = reader.result;
+    }
+    reader.readAsDataURL(e.target.files[0]); 
+}, false);
 
 button.addEventListener("click",function() {
     console.log("button pressed");
