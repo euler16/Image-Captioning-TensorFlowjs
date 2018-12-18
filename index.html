@@ -4,19 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/caption.css" />
     <title>Image Captioning</title>
 </head>
-<body>
-    <h1>Image Captioning in Browser</h1>
-    <div id="txt">Loading</div>
+<style>
+    .pred-container {
+        margin-bottom: 20px;
+    }
 
-    <input type="file" id="imageLoader" name="imageLoader" />
+    .pred-container>div {
+        display: inline-block;
+        margin-right: 20px;
+        vertical-align: top;
+    }
+
+    .row {
+        display: table-row;
+    }
+
+    .cell {
+        display: table-cell;
+        padding-right: 20px;
+    }
+
+    #file-container {
+        margin-bottom: 20px;
+    }
+</style>
+
+<body>
+    <div class="tfjs-example-container">
+        <section class='title-area'>
+            <h1>Image Captioning in Browser</h1>
+        </section>
     
+        <section>
+            <p class='section-head'>Description</p>
+            <p>
+                After the models are loaded, upload any image and click the
+                generate caption button then wait until the caption appears.
+                Note: UI may be unresponsive for sometime while generating caption.
+            </p>
+        </section>
+    <section>
+    <p class='section-head'>Status</p>
+    <div id="txt">Loading Model ... </div>
+    </section>
+
+    <p>
+    Upload image: <input type="file" id="imageLoader" name="imageLoader" /><br><br>
+    <button type="button" id="btn">Generate Caption</button><br>
+    <div id="caption-div">
+        <h4>Caption: </h4>
+        <div id="caption"></div>
+    </div>
+</p>
     <img src="images/picture.jpg" id="image" width="400">
-    <button type="button" id="btn">Button</button>
-    <div id="caption"></div>
-    <!-- <script src="js/p5.min.js"></script>
-    <script src="js/p5.dom.min.js"></script> -->
+
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
     <script src="model/word2idx.js"></script>
     <script src="model/idx2word.js"></script>
