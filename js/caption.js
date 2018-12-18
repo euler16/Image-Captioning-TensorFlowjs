@@ -120,15 +120,6 @@ function caption(img) {
     }); 
 }
 
-async function loadMobileNet() {
-    const mobilenet = await tf.loadModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
-    const layer = mobilenet.getLayer('conv_preds');
-    console.log("mobileNet loaded");
-    return tf.model({
-        'inputs': mobilenet.inputs,
-        'outputs': layer.output
-    });
-}
 
 async function start() {
     //mobileNet = loadMobileNet();
@@ -147,7 +138,7 @@ async function start() {
 
 function modelLoaded() {
     mobileNet.predict(tf.zeros([1, 224, 224, 3])).dispose();
-    console.log("Inside modelLoaded()");
+    //console.log("Inside modelLoaded()");
     isModelLoaded = true;
     text.innerHTML = "Models Loaded!";
 }
@@ -162,12 +153,12 @@ imageLoader.addEventListener('change', function(e) {
 }, false);
 
 button.addEventListener("click",function() {
-    console.log("button pressed");
+    //console.log("button pressed");
     if(!isModelLoaded) {
         console.log('Models not loaded yet');
         return;
     }
-    capField.innerHTML = "Generating Caption ...";
+    capField.innerHTML = "Generating Caption ... Please Wait";
     let picture = preprocess(img);
     //let cap = caption(picture);
     caption(picture);
